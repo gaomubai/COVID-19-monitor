@@ -9,11 +9,11 @@ app = Flask("Assignment 2")
 
 app.config["DEBUG"] = True
 app.config['UPLOAD_FOLDER'] = 'static/daily_reports'
-
+app.config['UPLOAD_FOLDER2'] = 'static/time_series'
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",
+    passwd="",
     database=""
 )
 mycursor = db.cursor()
@@ -50,6 +50,20 @@ def upload_daily_reports():
             db.commit()
     return redirect(url_for('welcome_monitor'))
 
+@app.route('/monitor/time_series')
+def time_series_index():
+    return render_template('index_time_series.html')
+
+@app.route('/monitor/time_series', methods=['POST'])
+def upload_time_series():
+    file = request.files['file']
+    if file.filename != '':
+        path = os.path.join(app.config['UPLOAD_FOLDER2'], file.filename)
+        file.save(path)
+        csv_data = pd.read_csv(path, names=None, header=0, encoding='unicode_escape')
+        csv_data = csv_data.where((pd.notnull(csv_data)), None)
+        print(csv_data)
+    return redirect(url_for('welcome_monitor'))
 
 if __name__ == "__main__":
     app.run()
