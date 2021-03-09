@@ -12,11 +12,12 @@ app.config["DEBUG"] = True
 app.config['UPLOAD_FOLDER1'] = 'static/daily_reports'
 app.config['UPLOAD_FOLDER2'] = 'static/time_series'
 app.config['UPLOAD_FOLDER3'] = 'static/daily_reports_us'
+app.config['UPLOAD_FOLDER4'] = 'static/query'
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="",
-    database=""
+    passwd="Jiayouyangls+6",
+    database="COVID19Monitor"
 )
 mycursor = db.cursor()
 
@@ -40,12 +41,12 @@ def upload_daily_reports():
         col_name = ['FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Last_Update',
                     'Lat', 'Long_', 'Confirmed', 'Deaths', 'Recovered', 'Active', 'Combined_Key', 
                     'Incidence_Rate', 'Case-Fatality_Ratio']
-        csv_data = pd.read_csv(path, names=col_name, header=None, encoding='utf-8')
+        csv_data = pd.read_csv(path, names=col_name, header=None, encoding='unicode_escape') #modified
         csv_data = csv_data.where((pd.notnull(csv_data)), None)
         mycursor.execute("DROP TABLE IF EXISTS `{tab}`".format(tab=file.filename))
-        mycursor.execute("CREATE TABLE IF NOT EXISTS `{tab}` (FIPS VARCHAR(255), Admin2 VARCHAR(255), Province_State VARCHAR(255), Country_Region VARCHAR(255), Last_Update VARCHAR(255), Lat VARCHAR(255), Long_ VARCHAR(255), Confirmed VARCHAR(255), Deaths VARCHAR(255), Recovered VARCHAR(255), Active VARCHAR(255), Combined_Key VARCHAR(255), Incidence_Rate VARCHAR(255), `Case-Fatality_Ratio` VARCHAR(255))".format(tab=file.filename))
+        mycursor.execute("CREATE TABLE IF NOT EXISTS `{tab}` (FIPS VARCHAR(255), Admin2 VARCHAR(255), Province_State VARCHAR(255), Country_Region VARCHAR(255), Last_Update VARCHAR(255), Lat VARCHAR(255), Long_ VARCHAR(255), Confirmed VARCHAR(255), Deaths VARCHAR(255), Recovered VARCHAR(255), Active VARCHAR(255), Combined_Key VARCHAR(255), Incidence_Rate VARCHAR(255), `Case-Fatality_Ratio` VARCHAR(255))".format(tab='haha'))  #Add name without extension
         for i, row in csv_data.iterrows():
-            sql = """INSERT INTO `{tab}` (FIPS, Admin2, Province_State, Country_Region, Last_Update, Lat, Long_, Confirmed, Deaths, Recovered, Active, Combined_Key, Incidence_Rate, `Case-Fatality_Ratio`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""".format(tab=file.filename)
+            sql = """INSERT INTO `{tab}` (FIPS, Admin2, Province_State, Country_Region, Last_Update, Lat, Long_, Confirmed, Deaths, Recovered, Active, Combined_Key, Incidence_Rate, `Case-Fatality_Ratio`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""".format(tab='haha') #Add name without extension
             val = (row['FIPS'], row['Admin2'], row['Province_State'], row['Country_Region'], row['Last_Update'], row['Lat'],
                      row['Long_'], row['Confirmed'], row['Deaths'], row['Recovered'], row['Active'], row['Combined_Key'],
                      row['Incidence_Rate'], row['Case-Fatality_Ratio'])
@@ -102,6 +103,42 @@ def upload_time_series():
         csv_data = csv_data.where((pd.notnull(csv_data)), None)
         print(csv_data)
     return redirect(url_for('welcome_monitor'))
+
+
+@app.route('/monitor/query')
+def query_index():
+    return render_template('query.html')
+
+@app.route('/monitor/query', method=['POST'])
+def query_post():
+    if request.method == "POST":
+        details = request.form
+        dates = details['dates']
+        dates = dates.split()
+        countries = details['countries']
+        countries = countries.split()
+        provinces = details['provinces']
+        provinces = provinces.split()
+        combined_keys = details['combined_keys']
+        combined_keys = combined_keys.split()
+        data = {}
+        for date in dates:
+            data[date] = {}
+            for country in countries:
+                mycursor.execute("""SELECT Recover FROM %s WHERE Country_Region = %s""", (date, country))
+                data[date][country] = mycursor.fetchall()
+            for province in provinces:
+                mycursor.execute("""SELECT Recover FROM %s WHERE Province_State = %s""", (date, province))
+                data[date][province] = mycursor.fetchall()
+            for combined_key in combined_keys:
+                mycursor.execute("""SELECT Recover FROM %s WHERE Combined_Key = %s""", (date, combined_key))
+                data[date][combined_key] = mycursor.fetchall()
+        # mysql.connection.commit()
+        return redirect(url_for('welcome_monitor'))
+    return render_template('query.html')
+
+
+
 
 if __name__ == "__main__":
     app.run()
