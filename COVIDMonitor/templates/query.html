@@ -1,13 +1,20 @@
 <!doctype html>
 <html>
-  <body>
-    <h1>Query data</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      Date <input type ="text" name= "dates" /><br><br>
-      Countries <input type = "text" name= "countries" /> <br><br>
-      Provinces/States <input type = "text" name = "provinces" /> <br><br>
-      combined_keys <input type = "text" name = "combined_keys" /> <br><br>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
+
+<body>
+  <h1>Query data</h1>
+  <form method="POST" action="" enctype="multipart/form-data">
+    <p>Date from <input type="text" name="dates_from" /> <br></p>
+    <p>Date to <input type="text" name="dates_to" /> </p>
+    <hr>
+    <p>Countries <input type="text" name="countries" /> </p>
+    <input type="submit" name="submit" value="Search Countries and Download">
+    <p>Provinces/States <input type="text" name="provinces" /></p>
+    <input type="submit" name="submit" value="Search Provinces/States and Download">
+    <p>Combined_Keys <input type="text" name="combined_keys" /></p>
+    <input type="submit" name="submit" value="Search Combined_keys and Download">
+  </form>
+
+</body>
+
 </html>
