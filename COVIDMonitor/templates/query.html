@@ -4,14 +4,14 @@
 <body>
   <h1>Query data</h1>
   <form method="POST" action="" enctype="multipart/form-data">
-    <p>Date from <input type="text" name="dates_from" /> <br></p>
-    <p>Date to <input type="text" name="dates_to" /> </p>
+    <p>Date from <input type="text" name="dates_from" placeholder="e.g 06_05_2020" required/> <br></p>
+    <p>Date to <input type="text" name="dates_to" placeholder="e.g, 06_05_2020" required/> </p>
     <hr>
-    <p>Countries <input type="text" name="countries" /> </p>
+    <p>Countries <input type="text" name="countries" placeholder="e.g Zambia/US"/> </p>
     <input type="submit" name="submit" value="Search Countries and Download">
-    <p>Provinces/States <input type="text" name="provinces" /></p>
+    <p>Provinces/States <input type="text" name="provinces" placeholder="e.g, South Carolina/Virginia"/></p>
     <input type="submit" name="submit" value="Search Provinces/States and Download">
-    <p>Combined_Keys <input type="text" name="combined_keys" /></p>
+    <p>Combined_Keys <input type="text" name="combined_keys" placeholder="e.g Abbeville, South Carolina, US/Ada, Idaho, US"/></p>
     <input type="submit" name="submit" value="Search Combined_keys and Download">
   </form>
 
