@@ -38,3 +38,12 @@ pytest --cov-report term --cov=COVIDMonitor tests/unit_tests.py
 ## Assignment Instructions
 
 Assignment instructions can be found here: https://drive.google.com/file/d/1CX_c29slK1TyUvEOiolSzuugnRGCRp8A/view?usp=sharing
+
+## Pair Programming
+
+1. Add a new data file: 
+    * Time Series: Driver:Leshiyang Navigator: Gaomubai
+    * Daily reports: Driver:Gaomubai Navigator: Leshiyang
+2. Update existing files: Driver:Gaomubai Navigator: Leshiyang
+3. Query data: Driver:Leshiyang Navigator: Gaomubai
+4. Returning the data: Driver:Gaomubai Navigator: Leshiyang
