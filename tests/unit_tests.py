@@ -124,3 +124,15 @@ class FlaskrTestCase(unittest.TestCase):
     def test_query_index(self): 
         response = app.test_client().get('/monitor/query')
         assert b'Query data' in response.data
+
+    def test_query(self):
+        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', countries = 'Afghanistan', submit = 'Search Countries and Download')
+        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+        assert response.content_length == 61
+        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', provinces = 'Fujian', submit = 'Search Provinces/States and Download')
+        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+        assert response.content_length == 63
+        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', combined_keys = 'Western Australia, Australia', submit = 'Search Combined_keys and Download')
+        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+        assert response.content_length == 81
+
