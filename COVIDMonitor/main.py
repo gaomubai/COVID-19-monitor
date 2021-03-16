@@ -29,6 +29,7 @@ mycursor = db.cursor()
 new_path = ""
 real_path = ""
 ALLOWED_FORMAT = set(['JSON', 'CSV', 'Text'])
+ALLOWED_DATA = set(['Deaths', 'Confirmed', 'Active', 'Recovered'])
 
 
 def table_exists(cursor, table_name):
@@ -138,13 +139,16 @@ def upload_time_series():
     return redirect(url_for('upload_time_series'))
 
 
-@app.route('/monitor/query')
-def query_index():
+@app.route('/monitor/query/<string:information>')
+def query_index(information):
     return render_template('query.html')
 
 
-@app.route('/monitor/query', methods=['POST'])
-def query_post():
+@app.route('/monitor/query/<string:information>', methods=['POST'])
+def query_post(information):
+    if not (information in ALLOWED_DATA):
+        abort(
+            404, description="The data can be any of the following['Deaths', 'Confirmed', 'Active', 'Recovered']")
     if request.method == "POST":
         detail = request.form
         dates = []
@@ -164,8 +168,8 @@ def query_post():
                 for date in dates:
                     country_data[date] = {}
                     for country in countries:
-                        sql_line = "SELECT Recovered FROM `{table}` WHERE Country_Region = (%s)".format(
-                            table=date)
+                        sql_line = "SELECT {info} FROM `{table}` WHERE Country_Region = (%s)".format(
+                            table=date, info=information)
                         mycursor.execute(sql_line, (country,))
                         country_data[date][country] = mycursor.fetchall()
                 country_file = open("country.txt", "w")
@@ -182,8 +186,8 @@ def query_post():
                 for date in dates:
                     province_data[date] = {}
                     for province in provinces:
-                        sql_line = "SELECT Recovered FROM `{table}` WHERE Province_State = (%s)".format(
-                            table=date)
+                        sql_line = "SELECT {info} FROM `{table}` WHERE Province_State = (%s)".format(
+                            table=date, info=information)
                         mycursor.execute(sql_line, (province,))
                         province_data[date][province] = mycursor.fetchall()
                 province_file = open("province.txt", "w")
@@ -201,8 +205,8 @@ def query_post():
                 for date in dates:
                     combine_data[date] = {}
                     for combine in combines:
-                        sql_line = "SELECT Recovered FROM `{table}` WHERE Combined_Key = (%s)".format(
-                            table=date)
+                        sql_line = "SELECT {info} FROM `{table}` WHERE Combined_Key = (%s)".format(
+                            table=date, info=information)
                         mycursor.execute(sql_line, (combine,))
                         combine_data[date][combine] = mycursor.fetchall()
                 combine_file = open("combined_keys.txt", "w")
@@ -222,25 +226,33 @@ def query_post():
 def download_file():
     return send_file(real_path, as_attachment=True)
 
-@app.route('/monitor/<string:file_format>/<string:file_name>', methods=["GET"])
+
+@app.route('/monitor/data_returning/<string:file_format>/<string:file_name>', methods=["GET"])
 def data_returning_download(file_format, file_name):
     if not (file_format in ALLOWED_FORMAT):
-        abort(404, description="no such format(we accept ['CSV', 'JSON', 'Text'])")
+        abort(
+            404, description="no such format(we accept ['CSV', 'JSON', 'Text'])")
     if (file_name[0:11] != 'time_series' and table_exists(mycursor, file_name) != 1):
         abort(404, description="no such file, plase upload it first")
     if file_format == 'CSV':
         if (file_name[-2:] == 'US'):
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER3'], file_name + '.csv', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER3'], file_name + '.csv', as_attachment=True))
         elif (file_name[0:11] == 'time_series'):
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER2'], file_name + '.csv', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER2'], file_name + '.csv', as_attachment=True))
         else:
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER1'], file_name + '.csv', as_attachment=True))
-        response.headers["Content-Disposition"] = "attachment; filename={}.csv".format(file_name)
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER1'], file_name + '.csv', as_attachment=True))
+        response.headers["Content-Disposition"] = "attachment; filename={}.csv".format(
+            file_name)
         return response
     elif file_format == 'JSON':
         if (file_name[-2:] == 'US'):
-            csv_file_path = os.path.join( app.config['UPLOAD_FOLDER3'], file_name + '.csv')
-            json_file_path = os.path.join(app.config['UPLOAD_FOLDER3'], file_name + '.json')
+            csv_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER3'], file_name + '.csv')
+            json_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER3'], file_name + '.json')
             data = {}
             with open(csv_file_path) as csv_file:
                 csv_reader = csv.DictReader(csv_file)
@@ -249,10 +261,13 @@ def data_returning_download(file_format, file_name):
                     data[id] = row
             with open(json_file_path, 'w') as json_file:
                 json_file.write(json.dumps(data, indent=4))
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER3'], file_name + '.json', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER3'], file_name + '.json', as_attachment=True))
         elif (file_name[0:11] == 'time_series'):
-            csv_file_path = os.path.join(app.config['UPLOAD_FOLDER2'], file_name + '.csv')
-            json_file_path = os.path.join(app.config['UPLOAD_FOLDER2'], file_name + '.json')
+            csv_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER2'], file_name + '.csv')
+            json_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER2'], file_name + '.json')
             data = {}
             with open(csv_file_path) as csv_file:
                 csv_reader = csv.DictReader(csv_file)
@@ -261,10 +276,13 @@ def data_returning_download(file_format, file_name):
                     data[id] = row
             with open(json_file_path, 'w') as json_file:
                 json_file.write(json.dumps(data, indent=4))
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER2'], file_name + '.json', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER2'], file_name + '.json', as_attachment=True))
         else:
-            csv_file_path = os.path.join(app.config['UPLOAD_FOLDER1'], file_name + '.csv')
-            json_file_path = os.path.join(app.config['UPLOAD_FOLDER1'], file_name + '.json')
+            csv_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER1'], file_name + '.csv')
+            json_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER1'], file_name + '.json')
             data = {}
             with open(csv_file_path) as csv_file:
                 csv_reader = csv.DictReader(csv_file)
@@ -273,28 +291,38 @@ def data_returning_download(file_format, file_name):
                     data[id] = row
             with open(json_file_path, 'w') as json_file:
                 json_file.write(json.dumps(data, indent=4))
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER1'], file_name + '.json', as_attachment=True))
-        response.headers["Content-Disposition"] = "attachment; filename={}.json".format(file_name)
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER1'], file_name + '.json', as_attachment=True))
+        response.headers["Content-Disposition"] = "attachment; filename={}.json".format(
+            file_name)
         return response
     else:
         if (file_name[-2:] == 'US'):
-            csv_file_path = os.path.join(app.config['UPLOAD_FOLDER3'], file_name + '.csv')
-            txt_file_path = os.path.join(app.config['UPLOAD_FOLDER3'], file_name + '.txt')
+            csv_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER3'], file_name + '.csv')
+            txt_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER3'], file_name + '.txt')
             shutil.copy(csv_file_path, txt_file_path)
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER3'], file_name + '.txt', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER3'], file_name + '.txt', as_attachment=True))
         elif (file_name[0:11] == 'time_series'):
-            csv_file_path = os.path.join(app.config['UPLOAD_FOLDER2'], file_name + '.csv')
-            txt_file_path = os.path.join(app.config['UPLOAD_FOLDER2'], file_name + '.txt')
+            csv_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER2'], file_name + '.csv')
+            txt_file_path = os.path.join(
+                app.config['UPLOAD_FOLDER2'], file_name + '.txt')
             shutil.copy(csv_file_path, txt_file_path)
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER2'], file_name + '.txt', as_attachment=True))
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER2'], file_name + '.txt', as_attachment=True))
         else:
             csv_file_path = os.path.join(
                 app.config['UPLOAD_FOLDER1'], file_name + '.csv')
             txt_file_path = os.path.join(
                 app.config['UPLOAD_FOLDER1'], file_name + '.txt')
             shutil.copy(csv_file_path, txt_file_path)
-            response = make_response(send_from_directory(app.config['UPLOAD_FOLDER1'], file_name + '.txt', as_attachment=True))
-        response.headers["Content-Disposition"] = "attachment; filename={}.txt".format(file_name)
+            response = make_response(send_from_directory(
+                app.config['UPLOAD_FOLDER1'], file_name + '.txt', as_attachment=True))
+        response.headers["Content-Disposition"] = "attachment; filename={}.txt".format(
+            file_name)
         return response
     return redirect(url_for('welcome_monitor'))
 

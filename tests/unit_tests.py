@@ -96,43 +96,131 @@ class FlaskrTestCase(unittest.TestCase):
         assert b'Upload your Daily Reports' in response.data
 
     def test_data_returning_index_csv_daily_report(self):
-        response = app.test_client().get('/monitor/something/01_03_2021', content_type='multipart/form-data')
+        response = app.test_client().get('/monitor/data_returning/something/01_03_2021',
+                                         content_type='multipart/form-data')
         assert response.status_code == 404
         assert b'no such format' in response.data
-        response = app.test_client().get('/monitor/CSV/something', content_type='multipart/form-data')
+        response = app.test_client().get('/monitor/data_returning/CSV/something',
+                                         content_type='multipart/form-data')
         assert response.status_code == 404
         assert b'no such file' in response.data
-        response = app.test_client().get('/monitor/Text/01_03_2021')
+        response = app.test_client().get('/monitor/data_returning/Text/01_03_2021')
         assert response.content_length == 566720
-        response = app.test_client().get('/monitor/CSV/01_03_2021')
+        assert response.content_type == 'text/plain; charset=utf-8'
+        response = app.test_client().get('/monitor/data_returning/CSV/01_03_2021')
         assert response.content_length == 566720
-        response = app.test_client().get('/monitor/JSON/01_03_2021')
+        assert response.content_type == 'text/csv; charset=utf-8'
+        response = app.test_client().get('/monitor/data_returning/JSON/01_03_2021')
         assert response.content_length == 290441
-        response = app.test_client().get('/monitor/Text/01_01_2021_US')
+        assert response.content_type == 'application/json'
+        response = app.test_client().get('/monitor/data_returning/Text/01_01_2021_US')
         assert response.content_length == 9502
-        response = app.test_client().get('/monitor/CSV/01_01_2021_US')
+        assert response.content_type == 'text/plain; charset=utf-8'
+        response = app.test_client().get('/monitor/data_returning/CSV/01_01_2021_US')
         assert response.content_length == 9502
-        response = app.test_client().get('/monitor/JSON/01_01_2021_US')
+        assert response.content_type == 'text/csv; charset=utf-8'
+        response = app.test_client().get('/monitor/data_returning/JSON/01_01_2021_US')
         assert response.content_length == 37386
-        response = app.test_client().get('/monitor/Text/time_series_covid19_confirmed_global')
+        assert response.content_type == 'application/json'
+        response = app.test_client().get(
+            '/monitor/data_returning/Text/time_series_covid19_confirmed_global')
         assert response.content_length == 509008
-        response = app.test_client().get('/monitor/CSV/time_series_covid19_confirmed_global')
+        assert response.content_type == 'text/plain; charset=utf-8'
+        response = app.test_client().get(
+            '/monitor/data_returning/CSV/time_series_covid19_confirmed_global')
         assert response.content_length == 509008
-        response = app.test_client().get('/monitor/JSON/time_series_covid19_confirmed_global')
+        assert response.content_type == 'text/csv; charset=utf-8'
+        response = app.test_client().get(
+            '/monitor/data_returning/JSON/time_series_covid19_confirmed_global')
         assert response.content_length == 910900
+        assert response.content_type == 'application/json'
 
-    def test_query_index(self): 
-        response = app.test_client().get('/monitor/query')
+    def test_query_index(self):
+        response = app.test_client().get('/monitor/query/Recovered')
+        assert b'Query data' in response.data
+        response = app.test_client().get('/monitor/query/Confirmed')
+        assert b'Query data' in response.data
+        response = app.test_client().get('/monitor/query/Active')
+        assert b'Query data' in response.data
+        response = app.test_client().get('/monitor/query/Deaths')
         assert b'Query data' in response.data
 
-    def test_query(self):
-        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', countries = 'Afghanistan', submit = 'Search Countries and Download')
-        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+    def test_query_recovered(self):
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         countries='Afghanistan', submit='Search Countries and Download')
+        response = app.test_client().post(
+            '/monitor/query/Recovered', data=test_data, follow_redirects=True)
         assert response.content_length == 61
-        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', provinces = 'Fujian', submit = 'Search Provinces/States and Download')
-        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         provinces='Fujian', submit='Search Provinces/States and Download')
+        response = app.test_client().post(
+            '/monitor/query/Recovered', data=test_data, follow_redirects=True)
         assert response.content_length == 63
-        test_data = dict(dates_from = '01_03_2021', dates_to = '01_03_2021', combined_keys = 'Western Australia, Australia', submit = 'Search Combined_keys and Download')
-        response = app.test_client().post('/monitor/query', data=test_data, follow_redirects=True)
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         combined_keys='Western Australia, Australia', submit='Search Combined_keys and Download')
+        response = app.test_client().post(
+            '/monitor/query/Recovered', data=test_data, follow_redirects=True)
         assert response.content_length == 81
+        assert response.content_type == 'text/plain; charset=utf-8'
 
+    def test_query_deaths(self):
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         countries='Afghanistan', submit='Search Countries and Download')
+        response = app.test_client().post(
+            '/monitor/query/Deaths', data=test_data, follow_redirects=True)
+        assert response.content_length == 60
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         provinces='Fujian', submit='Search Provinces/States and Download')
+        response = app.test_client().post(
+            '/monitor/query/Deaths', data=test_data, follow_redirects=True)
+        assert response.content_length == 61
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         combined_keys='Western Australia, Australia', submit='Search Combined_keys and Download')
+        response = app.test_client().post(
+            '/monitor/query/Deaths', data=test_data, follow_redirects=True)
+        assert response.content_length == 79
+        assert response.content_type == 'text/plain; charset=utf-8'
+
+    def test_query_confirmed(self):
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         countries='Afghanistan', submit='Search Countries and Download')
+        response = app.test_client().post(
+            '/monitor/query/Confirmed', data=test_data, follow_redirects=True)
+        assert response.content_length == 61
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         provinces='Fujian', submit='Search Provinces/States and Download')
+        response = app.test_client().post(
+            '/monitor/query/Confirmed', data=test_data, follow_redirects=True)
+        assert response.content_length == 63
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         combined_keys='Western Australia, Australia', submit='Search Combined_keys and Download')
+        response = app.test_client().post(
+            '/monitor/query/Confirmed', data=test_data, follow_redirects=True)
+        assert response.content_length == 81
+        assert response.content_type == 'text/plain; charset=utf-8'
+
+    def test_query_active(self):
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         countries='Afghanistan', submit='Search Countries and Download')
+        response = app.test_client().post(
+            '/monitor/query/Active', data=test_data, follow_redirects=True)
+        assert response.content_length == 58
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         provinces='Fujian', submit='Search Provinces/States and Download')
+        response = app.test_client().post(
+            '/monitor/query/Active', data=test_data, follow_redirects=True)
+        assert response.content_length == 62
+        assert response.content_type == 'text/plain; charset=utf-8'
+        test_data = dict(dates_from='01_03_2021', dates_to='01_03_2021',
+                         combined_keys='Western Australia, Australia', submit='Search Combined_keys and Download')
+        response = app.test_client().post(
+            '/monitor/query/Active', data=test_data, follow_redirects=True)
+        assert response.content_length == 80
+        assert response.content_type == 'text/plain; charset=utf-8'
