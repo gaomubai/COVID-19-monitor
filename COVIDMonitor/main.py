@@ -18,12 +18,16 @@ app.config['UPLOAD_FOLDER2'] = app.root_path + '/static/time_series'
 app.config['UPLOAD_FOLDER3'] = app.root_path + '/static/daily_reports_us'
 app.config['UPLOAD_FOLDER4'] = app.root_path + '/static/query'
 app.config['UPLOAD_FOLDER5'] = app.root_path
-db = mysql.connector.connect(
-    host="database-1.cf5up1kusnlc.us-east-2.rds.amazonaws.com",
-    user="admin",
-    passwd="assignment2",
-    database="covid_data"
-)
+try:
+    db = mysql.connector.connect(
+        host="database-1.cf5up1kusnlc.us-east-2.rds.amazonaws.com",
+        user="admin",
+        passwd="assignment2",
+        database="covid_data"
+    )
+except:
+    print("cannot connect to the database")
+    exit()
 mycursor = db.cursor()
 
 new_path = ""
