@@ -19,9 +19,9 @@ app.config['UPLOAD_FOLDER3'] = app.root_path + '/static/daily_reports_us'
 app.config['UPLOAD_FOLDER4'] = app.root_path + '/static/query'
 app.config['UPLOAD_FOLDER5'] = app.root_path
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="Gary19990618",
+    host="database-1.cf5up1kusnlc.us-east-2.rds.amazonaws.com",
+    user="admin",
+    passwd="assignment2",
     database="covid_data"
 )
 mycursor = db.cursor()
