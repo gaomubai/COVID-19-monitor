@@ -6,12 +6,16 @@ import csv
 import mysql.connector
 from os import path
 
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="Gary19990618",
-    database="covid_data"
-)
+try:
+    db = mysql.connector.connect(
+        host="database-1.cf5up1kusnlc.us-east-2.rds.amazonaws.com",
+        user="admin",
+        passwd="assignment2",
+        database="covid_data"
+    )
+except:
+    print("cannot connect to the database")
+    exit()
 mycursor = db.cursor()
 
 
