@@ -44,7 +44,7 @@ Upload time series file and data stored locally
 4) press 'search' to download the requested data file
 #### / monitor/data_returning/<string:file_format>/<string:file_name>
 1) file_format can be 'CSV', 'JSON', 'Text'
-2) file_name in the fomat: mm_dd_yyyy or mm_dd_yyyy_US or time_series_xxxxxx
+2) file_name in the fomat: mm_dd_yyyy(daily report) or mm_dd_yyyy_US(US daily report ) or time_series_xxxxxx(Time series)
 3) you need to up load file before you start download
 4) if the file exists it will download automatically
 ## Running Tests
