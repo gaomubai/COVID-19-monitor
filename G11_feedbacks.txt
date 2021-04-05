@@ -1,0 +1,29 @@
+Pair Programming (10/15 marks):
+The pair-programming process is briefly explained in the Readme file, but no reflections were included.
+It would be better to include more clear commit messages for pair programming. It is a bit hard to tell from commit history which commits were pair-programmed.
+
+
+Program design (12/20 marks)
+The program design is good in general.
+Did not talk about application design at all in the readme file.
+
+
+Functionality (17/25 marks)
+File upload worked, but the query always returns errors ("Not Found").
+
+
+Tests (20/20 marks)
+Very good test coverage (above 90%).
+
+
+Code Craftsmanship (6/10 marks)
+Code style looks good in general, but barely any comments were provided in the code.
+Did not mention tools/IDE used in the project.
+
+
+README.md explanation and organization (8/10 marks): 
+The Readme file included some instructions on how to run the application.
+
+
+Total: 10 + 12 + 17 + 20 + 6 + 8 = 73
+Final Mark: 15 * 73% = 10.95
